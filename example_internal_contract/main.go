@@ -2,9 +2,9 @@ package main
 
 import (
 	sdk "github.com/Conflux-Chain/go-conflux-sdk"
-	"github.com/Conflux-Chain/go-conflux-sdk/example/context"
-	exampletypes "github.com/Conflux-Chain/go-conflux-sdk/example/context/types"
 	"github.com/Conflux-Chain/go-conflux-sdk/types"
+	"github.com/conflux-fans/go-conflux-sdk-examples/context"
+	exampletypes "github.com/conflux-fans/go-conflux-sdk-examples/context/types"
 )
 
 var (

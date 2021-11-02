@@ -6,12 +6,13 @@ import (
 	"time"
 
 	sdk "github.com/Conflux-Chain/go-conflux-sdk"
-	"github.com/Conflux-Chain/go-conflux-sdk-example/context"
-	exampletypes "github.com/Conflux-Chain/go-conflux-sdk-example/context/types"
 	"github.com/Conflux-Chain/go-conflux-sdk/middleware"
 	"github.com/Conflux-Chain/go-conflux-sdk/rpc"
 	"github.com/Conflux-Chain/go-conflux-sdk/types"
 	"github.com/Conflux-Chain/go-conflux-sdk/utils"
+	"github.com/conflux-fans/go-conflux-sdk-examples/context"
+
+	exampletypes "github.com/conflux-fans/go-conflux-sdk-examples/context/types"
 
 	"github.com/Conflux-Chain/go-conflux-sdk/types/cfxaddress"
 	postypes "github.com/Conflux-Chain/go-conflux-sdk/types/pos"

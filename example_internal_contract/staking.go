@@ -6,8 +6,8 @@ import (
 	"time"
 
 	internalcontract "github.com/Conflux-Chain/go-conflux-sdk/contract_meta/internal_contract"
-	"github.com/Conflux-Chain/go-conflux-sdk/example/context"
 	"github.com/Conflux-Chain/go-conflux-sdk/types"
+	"github.com/conflux-fans/go-conflux-sdk-examples/context"
 )
 
 func testStaking() {
