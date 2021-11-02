@@ -16,7 +16,7 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	ethBind "github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
+	// "github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/event"
 )
@@ -166,6 +166,24 @@ func NewMyTokenFilterer(address types.Address, filterer bind.ContractFilterer) (
 	return &MyTokenFilterer{contract: contract}, nil
 }
 
+// NewMyTokenBulkCaller creates a new bulk caller instance of MyToken, bound to a specific deployed contract.
+func NewMyTokenBulkCaller(address types.Address, filterer bind.ContractFilterer) (*MyTokenBulkCaller, error) {
+	contract, err := bindMyToken(address, nil, nil, filterer)
+	if err != nil {
+		return nil, err
+	}
+	return &MyTokenBulkCaller{contract: contract}, nil
+}
+
+// NewMyTokenBulkTransactor creates a new bulk transactor instance of MyToken, bound to a specific deployed contract.
+func NewMyTokenBulkTransactor(address types.Address, transactor bind.ContractTransactor) (*MyTokenBulkTransactor, error) {
+	contract, err := bindMyToken(address, nil, transactor, nil)
+	if err != nil {
+		return nil, err
+	}
+	return &MyTokenBulkTransactor{contract: contract}, nil
+}
+
 // bindMyToken binds a generic wrapper to an already deployed contract.
 func bindMyToken(address types.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(MyTokenABI))
@@ -234,35 +252,33 @@ func (_MyToken *MyTokenCaller) BalanceOf(opts *bind.CallOpts, arg0 common.Addres
 //
 // Solidity: function balanceOf(address ) view returns(uint256)
 func (_MyToken *MyTokenBulkCaller) BalanceOf(bulkcaller bulk.BulkCaller, opts *bind.CallOpts, arg0 common.Address) *big.Int {
-	// var out []interface{}
-
-	// Pack the input, call and unpack the results
-	input, _ := _MyToken.contract.Abi().Pack("balanceOf", arg0)
-	// if err != nil {
-	// 	return err
-	// }
-	inputStr := hexutil.Bytes(input).String()
-
-	// if err != nil {
-	// 	return *new(*big.Int), err
-	// }
-
-	// out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
-
-	// return out0, err
-
-	to := _MyToken.contract.Address()
-	msg := types.CallRequest{From: opts.From, To: &to, Data: &inputStr}
-
-	result := &big.Int{}
-	outDecoder := func(out []byte, decoded *[]interface{}) error {
-		return _MyToken.contract.Abi().UnpackIntoInterface(result, "balanceOf", out)
+	// // Pack the input, call and unpack the results
+	// input, _ := _MyToken.contract.Abi().Pack("balanceOf", arg0)
+	// inputStr := hexutil.Bytes(input).String()
+	if opts == nil {
+		opts = new(bind.CallOpts)
 	}
-	// bulkcaller.Customer().ContractCall(msg, opts.EpochNumber, result, outDecoder)
+	c := _MyToken.contract
 
-	bulkcaller.Customer().ContractCall(msg, opts.EpochNumber, &bulk.OutputHandler{outDecoder, &[]interface{}{result}})
-	return result
-	// *bulkcaller.GetBatchElems() = append(*bulkcaller.GetBatchElems())
+	// to := _MyToken.contract.Address()
+	// msg := types.CallRequest{From: opts.From, To: &to, Data: &inputStr}
+
+	msg := c.GenRequest(opts, "balanceOf", arg0)
+
+	val := &big.Int{}
+	outDecoder := func(rawOut []byte) error {
+		out := []interface{}{}
+		err := c.DecodeOutput(&out, rawOut, "balanceOf")
+		if err != nil {
+			return err
+		}
+		fmt.Printf("out %v\n", out)
+		*val = **abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+		return nil
+	}
+
+	bulkcaller.Customer().ContractCall(msg, opts.EpochNumber, outDecoder)
+	return val
 }
 
 // BalanceOf is a free data retrieval call binding the contract method 0x70a08231.
@@ -391,6 +407,32 @@ func (_MyToken *MyTokenSession) Transfer(_to common.Address, _value *big.Int) (*
 // Solidity: function transfer(address _to, uint256 _value) returns()
 func (_MyToken *MyTokenTransactorSession) Transfer(_to common.Address, _value *big.Int) (*types.UnsignedTransaction, *types.Hash, error) {
 	return _MyToken.Contract.Transfer(&_MyToken.TransactOpts, _to, _value)
+}
+
+// Transfer is a paid mutator transaction binding the contract method 0xa9059cbb.
+//
+// Solidity: function transfer(address _to, uint256 _value) returns()
+func (_MyToken *MyTokenBulkTransactor) Transfer(opts *bind.TransactOpts, _to common.Address, _value *big.Int) types.UnsignedTransaction {
+	c := _MyToken.contract
+
+	c.Transact(opts, "transfer", _to, _value)
+	input, _ := c.Abi().Pack("transfer", _to, _value)
+
+	utxBase := opts
+	if opts == nil {
+		utxBase = &bind.TransactOpts{}
+	}
+
+	contractAddr := c.Address()
+	utx := types.UnsignedTransaction{
+		UnsignedTransactionBase: types.UnsignedTransactionBase(*utxBase),
+		To:                      &contractAddr,
+		Data:                    types.NewBytes(input),
+	}
+	return utx
+
+	// c.Transactor().ApplyUnsignedTransactionDefault(&utx)
+	// return bulkSender.AppendTransaction(utx)
 }
 
 // MyTokenTransferIterator is returned from FilterTransfer and is used to iterate over the raw logs and unpacked data for Transfer events raised by the MyToken contract.
