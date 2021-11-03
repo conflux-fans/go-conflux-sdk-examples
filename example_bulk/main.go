@@ -32,7 +32,7 @@ func bulkCall(sigClient *sdk.Client) {
 	bulkCaller := bulk.NewBulkerCaller(sigClient)
 
 	// contract call
-	mTokenBulkCaller, err := NewMyTokenBulkCaller(cfxaddress.MustNew("cfxtest:acd7apn6pnfhna7w1pa8evzhwhv3085vjjp1b8bav5"), sigClient)
+	mTokenBulkCaller, err := NewMyTokenBulkCaller(cfxaddress.MustNew("cfxtest:acevhhrk26e6hheja60dbr41vfmgt0t5easp2c7z46"), sigClient)
 	if err != nil {
 		panic(err)
 	}
@@ -49,12 +49,22 @@ func bulkCall(sigClient *sdk.Client) {
 	balance0 := mTokenBulkCaller.BalanceOf(*bulkCaller, nil, addresses[0].MustGetCommonAddress())
 	balance1 := mTokenBulkCaller.BalanceOf(*bulkCaller, nil, addresses[1].MustGetCommonAddress())
 	balance2 := mTokenBulkCaller.BalanceOf(*bulkCaller, nil, addresses[2].MustGetCommonAddress())
+	name := mTokenBulkCaller.Name(*bulkCaller, nil)
+	symbol := mTokenBulkCaller.Symbol(*bulkCaller, nil)
+	decimals := mTokenBulkCaller.Decimals(*bulkCaller, nil)
+	_struct := mTokenBulkCaller.ReturnTuple(*bulkCaller, nil)
+	tupleWithStruct := mTokenBulkCaller.ReturnTupleWithStruct(*bulkCaller, nil)
 
 	errors, err := bulkCaller.Excute()
 	if err != nil {
 		panic(err)
 	}
-	results := []interface{}{gasPrice, nonce0, nonce1, balance0, balance1, balance2}
+	results := []interface{}{
+		gasPrice, nonce0, nonce1,
+		*balance0, *balance1, *balance2, *name, *symbol, *decimals,
+		*_struct, *tupleWithStruct,
+	}
+
 	for i, e := range errors {
 		if e != nil {
 			fmt.Printf("call %vth error %v\n", i, e)
