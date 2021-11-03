@@ -10,5 +10,6 @@ require (
 )
 
 
-replace github.com/Conflux-Chain/go-conflux-sdk v1.0.15 => github.com/wangdayong228/go-conflux-sdk v0.2.0
+// replace github.com/Conflux-Chain/go-conflux-sdk v1.0.15 => github.com/wangdayong228/go-conflux-sdk v0.2.0
+replace github.com/Conflux-Chain/go-conflux-sdk v1.0.15 => ../go-conflux-sdk
 replace github.com/Conflux-Chain/conflux-abigen v0.1.0 => ../conflux-abigen

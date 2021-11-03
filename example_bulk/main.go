@@ -13,10 +13,14 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
+var (
+	mytokenAddr cfxaddress.Address = cfxaddress.MustNew("cfxtest:acbzmpbpb1w0a42gyzcc1gsz2wdwts2sy6fe4j208c")
+)
+
 func main() {
 	client := initClient()
 	bulkCall(client)
-	// bulkSend(client)
+	bulkSend(client)
 }
 
 func initClient() *sdk.Client {
@@ -29,18 +33,25 @@ func initClient() *sdk.Client {
 
 func bulkCall(sigClient *sdk.Client) {
 
+	fmt.Println("==== start test buck call")
 	bulkCaller := bulk.NewBulkerCaller(sigClient)
 
-	// contract call
-	mTokenBulkCaller, err := NewMyTokenBulkCaller(cfxaddress.MustNew("cfxtest:acevhhrk26e6hheja60dbr41vfmgt0t5easp2c7z46"), sigClient)
+	_defaultAcc, err := sigClient.GetAccountManager().GetDefault()
 	if err != nil {
-		panic(err)
+		panic(fmt.Sprintf("%+v", err))
+	}
+
+	// contract call
+	mTokenBulkCaller, err := NewMyTokenBulkCaller(mytokenAddr, sigClient)
+	if err != nil {
+		panic(fmt.Sprintf("%+v", err))
 	}
 
 	addresses := []cfxaddress.Address{
 		cfxaddress.MustNew("cfxtest:aamjxdgz4m84hjvf2s9rmw5uzd4dkh8aa6krdsh0ep"),
 		cfxaddress.MustNew("cfxtest:aak2rra2njvd77ezwjvx04kkds9fzagfe6d5r8e957"),
 		cfxaddress.MustNew("cfxtest:aamufnszywuy3bsfe1vuzbjpnd7bmpw9vutzmayap1"),
+		*_defaultAcc,
 	}
 
 	gasPrice := bulkCaller.Cfx().GetGasPrice()
@@ -49,6 +60,7 @@ func bulkCall(sigClient *sdk.Client) {
 	balance0 := mTokenBulkCaller.BalanceOf(*bulkCaller, nil, addresses[0].MustGetCommonAddress())
 	balance1 := mTokenBulkCaller.BalanceOf(*bulkCaller, nil, addresses[1].MustGetCommonAddress())
 	balance2 := mTokenBulkCaller.BalanceOf(*bulkCaller, nil, addresses[2].MustGetCommonAddress())
+	balance3 := mTokenBulkCaller.BalanceOf(*bulkCaller, nil, addresses[3].MustGetCommonAddress())
 	name := mTokenBulkCaller.Name(*bulkCaller, nil)
 	symbol := mTokenBulkCaller.Symbol(*bulkCaller, nil)
 	decimals := mTokenBulkCaller.Decimals(*bulkCaller, nil)
@@ -57,11 +69,11 @@ func bulkCall(sigClient *sdk.Client) {
 
 	errors, err := bulkCaller.Excute()
 	if err != nil {
-		panic(err)
+		panic(fmt.Sprintf("%+v", err))
 	}
 	results := []interface{}{
 		gasPrice, nonce0, nonce1,
-		*balance0, *balance1, *balance2, *name, *symbol, *decimals,
+		*balance0, *balance1, *balance2, *balance3, *name, *symbol, *decimals,
 		*_struct, *tupleWithStruct,
 	}
 
@@ -75,6 +87,8 @@ func bulkCall(sigClient *sdk.Client) {
 }
 
 func bulkSend(sigClient *sdk.Client) {
+	fmt.Println("==== test buck send")
+
 	bulkSender := bulk.NewBuckSender(*sigClient)
 	froms := []cfxaddress.Address{
 		cfxaddress.MustNew("cfxtest:aap9kthvctunvf030rbkk9k7zbzyz12dajp1u3sp4g"),
@@ -97,23 +111,23 @@ func bulkSend(sigClient *sdk.Client) {
 		AppendTransaction(newTx(nil, &tos[1], types.NewBigInt(600))).
 		AppendTransaction(newTx(nil, &tos[2], types.NewBigInt(700), types.NewBigInt(1000000)))
 
-	mTokenBulkSender, err := NewMyTokenBulkTransactor(cfxaddress.MustNew("cfxtest:acd7apn6pnfhna7w1pa8evzhwhv3085vjjp1b8bav5"), sigClient)
+	mTokenBulkSender, err := NewMyTokenBulkTransactor(mytokenAddr, sigClient)
 	if err != nil {
-		panic(err)
+		panic(fmt.Sprintf("%+v", err))
 	}
 
 	bulkSender.
-		AppendTransaction(mTokenBulkSender.Transfer(nil, tos[1].MustGetCommonAddress(), big.NewInt(10))).
-		AppendTransaction(mTokenBulkSender.Transfer(nil, tos[2].MustGetCommonAddress(), big.NewInt(20))).
-		AppendTransaction(mTokenBulkSender.Transfer(nil, tos[3].MustGetCommonAddress(), big.NewInt(30)))
+		AppendTransaction(mTokenBulkSender.Transfer(nil, tos[1].MustGetCommonAddress(), big.NewInt(1))).
+		AppendTransaction(mTokenBulkSender.Transfer(nil, tos[2].MustGetCommonAddress(), big.NewInt(2))).
+		AppendTransaction(mTokenBulkSender.Transfer(nil, tos[3].MustGetCommonAddress(), big.NewInt(3)))
 
 	if err := bulkSender.PopulateTransactions(); err != nil {
-		panic(err)
+		panic(fmt.Sprintf("%+v", err))
 	}
 
 	hashes, errors, err := bulkSender.SignAndSend()
 	if err != nil {
-		panic(err)
+		panic(fmt.Sprintf("%+v", err))
 	}
 	for i := 0; i < len(hashes); i++ {
 		if errors[i] != nil {
