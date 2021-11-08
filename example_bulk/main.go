@@ -19,6 +19,7 @@ var (
 
 func main() {
 	client := initClient()
+	bulkCallEmpty(client)
 	bulkCall(client)
 	bulkSend(client)
 }
@@ -29,6 +30,15 @@ func initClient() *sdk.Client {
 	sigClient.UseCallRpcMiddleware(middleware.CallRpcConsoleMiddleware)
 	sigClient.UseBatchCallRpcMiddleware(middleware.BatchCallRpcConsoleMiddleware)
 	return sigClient
+}
+
+func bulkCallEmpty(sigClient *sdk.Client) {
+	bulkCaller := bulk.NewBulkerCaller(sigClient)
+	err := bulkCaller.Execute()
+	if err != nil {
+		panic(fmt.Sprintf("%+v", err))
+	}
+	fmt.Println("==== end test bulk call empty")
 }
 
 func bulkCall(sigClient *sdk.Client) {
@@ -54,35 +64,42 @@ func bulkCall(sigClient *sdk.Client) {
 		*_defaultAcc,
 	}
 
-	gasPrice := bulkCaller.Cfx().GetGasPrice()
-	nonce0 := bulkCaller.Cfx().GetNextNonce(addresses[0])
-	nonce1 := bulkCaller.Cfx().GetNextNonce(addresses[1])
-	balance0 := mTokenBulkCaller.BalanceOf(*bulkCaller, nil, addresses[0].MustGetCommonAddress())
-	balance1 := mTokenBulkCaller.BalanceOf(*bulkCaller, nil, addresses[1].MustGetCommonAddress())
-	balance2 := mTokenBulkCaller.BalanceOf(*bulkCaller, nil, addresses[2].MustGetCommonAddress())
-	balance3 := mTokenBulkCaller.BalanceOf(*bulkCaller, nil, addresses[3].MustGetCommonAddress())
-	name := mTokenBulkCaller.Name(*bulkCaller, nil)
-	symbol := mTokenBulkCaller.Symbol(*bulkCaller, nil)
-	decimals := mTokenBulkCaller.Decimals(*bulkCaller, nil)
-	_struct := mTokenBulkCaller.ReturnTuple(*bulkCaller, nil)
-	tupleWithStruct := mTokenBulkCaller.ReturnTupleWithStruct(*bulkCaller, nil)
+	gasPrice, gasPriceErr := bulkCaller.Cfx().GetGasPrice()
+	nonce0, nonce0Err := bulkCaller.Cfx().GetNextNonce(addresses[0])
+	nonce1, nonce1Err := bulkCaller.Cfx().GetNextNonce(addresses[1])
+	balance0, balance0Err := mTokenBulkCaller.BalanceOf(*bulkCaller, nil, addresses[0].MustGetCommonAddress())
+	balance1, balance1Err := mTokenBulkCaller.BalanceOf(*bulkCaller, nil, addresses[1].MustGetCommonAddress())
+	name, nameErr := mTokenBulkCaller.Name(*bulkCaller, nil)
+	symbol, symbolErr := mTokenBulkCaller.Symbol(*bulkCaller, nil)
+	decimals, decimalsErr := mTokenBulkCaller.Decimals(*bulkCaller, nil)
+	_struct, _structErr := mTokenBulkCaller.ReturnTuple(*bulkCaller, nil)
+	tupleWithStruct, tupleWithStructErr := mTokenBulkCaller.ReturnTupleWithStruct(*bulkCaller, nil)
 
-	errors, err := bulkCaller.Excute()
+	err = bulkCaller.Execute()
 	if err != nil {
 		panic(fmt.Sprintf("%+v", err))
 	}
-	results := []interface{}{
-		gasPrice, nonce0, nonce1,
-		*balance0, *balance1, *balance2, *balance3, *name, *symbol, *decimals,
-		*_struct, *tupleWithStruct,
-	}
 
-	for i, e := range errors {
-		if e != nil {
-			fmt.Printf("call %vth error %v\n", i, e)
-			continue
-		}
-		fmt.Printf("call %vth result %v\n", i, results[i])
+	fmt.Println("bulk call results:")
+	printAny(gasPrice, *gasPriceErr, "gasPrice")
+	printAny(nonce0, *nonce0Err, "nonce0")
+	printAny(nonce1, *nonce1Err, "nonce1")
+	printAny(*balance0, *balance0Err, "balance0")
+	printAny(*balance1, *balance1Err, "balance1")
+	printAny(*name, *nameErr, "name")
+	printAny(*symbol, *symbolErr, "symbol")
+	printAny(*decimals, *decimalsErr, "decimals")
+	printAny(*_struct, *_structErr, "_struct")
+	printAny(*tupleWithStruct, *tupleWithStructErr, "tupleWithStruct")
+
+	fmt.Println("==== end test buck call")
+}
+
+func printAny(b interface{}, err error, name string) {
+	if err != nil {
+		fmt.Printf("get %v error %v", name, err)
+	} else {
+		fmt.Println(name, b)
 	}
 }
 
@@ -136,6 +153,7 @@ func bulkSend(sigClient *sdk.Client) {
 			fmt.Printf("the %vth tx hash %v\n", i, hashes[i])
 		}
 	}
+	fmt.Println("==== end test buck send")
 }
 
 func newTx(from *cfxaddress.Address, to *cfxaddress.Address, value *hexutil.Big, nonce ...*hexutil.Big) types.UnsignedTransaction {
