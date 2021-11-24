@@ -53,7 +53,7 @@ func creatAccount() {
 func importAccount() {
 	am := initAccountManager()
 	dir, _ := os.Getwd()
-	keydir := dir + "/keystore_tmp"
+	keydir := dir + "/keystore"
 	files, err := ioutil.ReadDir(keydir)
 	if err != nil {
 		panic(err)
@@ -129,12 +129,12 @@ func decodeRawTx() {
 }
 
 func hasChecksumChecked() {
-	_, err := am.Export(address.MustNewFromHex("0x14b899ed1cd49da2c11093606465baa102662ab5", 1), "hello")
+	_, err := am.Export(address.MustNewFromHex("0x1ceb7b1c5252ae3eaaf19d3a785cfbea48cc37f7", 1), "hello")
 	if err != nil {
 		panic(err)
 	}
 
-	_, err = am.Export(address.MustNewFromHex("0x14b899eD1cD49Da2c11093606465Baa102662ab5", 1), "hello")
+	_, err = am.Export(address.MustNewFromHex("0x1Ceb7B1c5252aE3EAaf19d3a785CfBEA48cc37f7", 1), "hello")
 	if err != nil {
 		panic(err)
 	}

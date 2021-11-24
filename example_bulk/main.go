@@ -109,6 +109,7 @@ func bulkSend(sigClient *sdk.Client) {
 	bulkSender := bulk.NewBuckSender(*sigClient)
 	froms := []cfxaddress.Address{
 		cfxaddress.MustNew("cfxtest:aap9kthvctunvf030rbkk9k7zbzyz12dajp1u3sp4g"),
+		cfxaddress.MustNew("cfxtest:aamcnjzp6ues2ta7ctftrpf7yes6fre8u29e02ncn6"),
 	}
 	tos := []cfxaddress.Address{
 		cfxaddress.MustNew("cfxtest:aakkvauu2breh481pz49muu89bfvedz9uan0r1wp73"),
@@ -117,16 +118,21 @@ func bulkSend(sigClient *sdk.Client) {
 		cfxaddress.MustNew("cfxtest:aajgaxr9wax7fuw17wae1xn7bh9w4z4496tvkzng6d"),
 	}
 
+	// unlock
+	for _, user := range froms {
+		sigClient.AccountManager.Unlock(user, "hello")
+	}
+
 	// cfx transfer
 	bulkSender.
 		AppendTransaction(newTx(&froms[0], &tos[0], types.NewBigInt(100))).
-		AppendTransaction(newTx(&froms[0], &tos[1], types.NewBigInt(200))).
+		AppendTransaction(newTx(&froms[1], &tos[1], types.NewBigInt(200), types.NewBigInt(3))).
 		AppendTransaction(newTx(&froms[0], &tos[2], types.NewBigInt(300), types.NewBigInt(2000))).
-		AppendTransaction(newTx(&froms[0], &tos[3], types.NewBigInt(400))).
-		AppendTransaction(newTx(&froms[0], &tos[0], types.NewBigInt(500))).
+		AppendTransaction(newTx(&froms[1], &tos[3], types.NewBigInt(400))).
+		AppendTransaction(newTx(&froms[1], &tos[0], types.NewBigInt(500), types.NewBigInt(1000000))).
 		AppendTransaction(newTx(nil, &tos[0], types.NewBigInt(500), types.NewBigInt(1))).
 		AppendTransaction(newTx(nil, &tos[1], types.NewBigInt(600))).
-		AppendTransaction(newTx(nil, &tos[2], types.NewBigInt(700), types.NewBigInt(1000000)))
+		AppendTransaction(newTx(&froms[1], &tos[2], types.NewBigInt(700)))
 
 	mTokenBulkSender, err := NewMyTokenBulkTransactor(mytokenAddr, sigClient)
 	if err != nil {
