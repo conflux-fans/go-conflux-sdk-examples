@@ -10,8 +10,10 @@ import (
 	"time"
 
 	sdk "github.com/Conflux-Chain/go-conflux-sdk"
+	"github.com/Conflux-Chain/go-conflux-sdk/cfxclient/bulk"
 	"github.com/Conflux-Chain/go-conflux-sdk/types/cfxaddress"
 	"github.com/conflux-fans/go-conflux-sdk-examples/context"
+	"github.com/conflux-fans/go-conflux-sdk-examples/example_contract/contract/testerror"
 	"github.com/ethereum/go-ethereum/common"
 )
 
@@ -99,8 +101,18 @@ func main() {
 	}
 	fmt.Printf("decimals of contract is: %+v\n\n", decimals)
 
-	//send transction for contract method
 	to := cfxaddress.MustNewFromHex("0x160ebef20c1f739957bf9eecd040bce699cc42c6")
+	// //check if call transfer tx will be error
+	// zeroAddr := cfxaddress.MustNewFromHex("0x0000000000000000000000000000000000000000")
+	// err = contract.Call(&types.ContractMethodCallOption{From: &zeroAddr}, nil,
+	// 	"transfer", to.MustGetCommonAddress(), new(big.Int).Mul(big.NewInt(10000), big.NewInt(1e18)))
+
+	// if err != nil {
+	// 	fmt.Printf("call transfer error %+v", err)
+	// }
+	// return
+
+	//send transction for contract method
 	txhash, err := contract.SendTransaction(nil, "transfer", to.MustGetCommonAddress(), big.NewInt(10))
 	if err != nil {
 		panic(err)
@@ -135,6 +147,9 @@ func main() {
 		panic(err)
 	}
 	fmt.Printf("decoded transfer event: {From: 0x%x, To: 0x%x, Value: %v} \n", Transfer.From, Transfer.To, Transfer.Value)
+
+	fmt.Println("call contract methods and expect return error with message")
+	callContractWillReturnErrorWithMsg(client)
 }
 
 func getCurrentDir() string {
@@ -144,4 +159,41 @@ func getCurrentDir() string {
 	}
 	currentDir := path.Join(filename, "../")
 	return currentDir
+}
+
+func callContractWillReturnErrorWithMsg(client *sdk.Client) {
+	_, hash, _, err := testerror.DeployTestError(nil, client)
+	if err != nil {
+		panic(err)
+	}
+
+	receipt, err := client.WaitForTransationReceipt(*hash, 1)
+	if err != nil {
+		panic(err)
+	}
+
+	inst, err := testerror.NewTestError(*receipt.ContractCreated, client)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("deploy testerror done %v\n", hash)
+
+	testErrorRaw := testerror.TestErrorRaw{inst}
+
+	err = testErrorRaw.Call(nil, &[]interface{}{}, "mustRevert")
+	fmt.Printf("expect json rpc error: %+v\n", err)
+
+	bulkCaller := bulk.NewBulkCaller(client)
+	instBulkCaller, err := testerror.NewTestErrorBulkCaller(*receipt.ContractCreated, client)
+	if err != nil {
+		panic(err)
+	}
+
+	errByCallContract := instBulkCaller.MustRevertByCall(*bulkCaller, nil)
+	if err = bulkCaller.Execute(); err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("expect json rpc error: %+v\n", *errByCallContract)
 }

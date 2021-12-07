@@ -33,7 +33,7 @@ func initClient() *sdk.Client {
 }
 
 func bulkCallEmpty(sigClient *sdk.Client) {
-	bulkCaller := bulk.NewBulkerCaller(sigClient)
+	bulkCaller := bulk.NewBulkCaller(sigClient)
 	err := bulkCaller.Execute()
 	if err != nil {
 		panic(fmt.Sprintf("%+v", err))
@@ -44,7 +44,7 @@ func bulkCallEmpty(sigClient *sdk.Client) {
 func bulkCall(sigClient *sdk.Client) {
 
 	fmt.Println("==== start test buck call")
-	bulkCaller := bulk.NewBulkerCaller(sigClient)
+	bulkCaller := bulk.NewBulkCaller(sigClient)
 
 	_defaultAcc, err := sigClient.GetAccountManager().GetDefault()
 	if err != nil {
