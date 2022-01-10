@@ -109,7 +109,7 @@ func run(_client *sdk.Client) {
 
 	traceBlock()
 	traceFilter()
-	tarceTransaction()
+	traceTransaction()
 
 	subscribeNewHeads()
 	subscribeEpochs()
@@ -448,7 +448,7 @@ func traceFilter() {
 	})
 }
 
-func tarceTransaction() {
+func traceTransaction() {
 	fmt.Println("\n- start trace transaction")
 	client.GetTransactionTraces(config.TransactionHash)
 }

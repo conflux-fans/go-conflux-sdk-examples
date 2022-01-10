@@ -39,8 +39,8 @@ github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym
 github.com/Conflux-Chain/conflux-abigen v0.1.1 h1:ahvjo51PilGDOcDg/1qq/yCa2XzvIeSqWCmLSf2Y8IQ=
 github.com/Conflux-Chain/conflux-abigen v0.1.1/go.mod h1:M99MGR9h/AqAECCdl2SaxinyEiNFLg4OEkQeE8vN2O4=
 github.com/Conflux-Chain/go-conflux-sdk v1.0.15/go.mod h1:vcBYa3VRDd0fyc9sB8854z9/MNHy6VWVeFjQ8Rq9Ogs=
-github.com/Conflux-Chain/go-conflux-sdk v1.0.19 h1:AwIQUdEvB2KkIO1+0yjjhZIOSGkHRiSe2RpC6LQOFjc=
-github.com/Conflux-Chain/go-conflux-sdk v1.0.19/go.mod h1:1sT1pMiGiTDqglUGUy6Nv87S/vEbiNYUlNLYZ6Y0fv4=
+github.com/Conflux-Chain/go-conflux-sdk v1.0.24 h1:Hz9PD3RSGfJiNNQpqonMpAQYuERhg8TCY9U4KjMaESo=
+github.com/Conflux-Chain/go-conflux-sdk v1.0.24/go.mod h1:lacOxkUs+1ama6Zko2GvRH9y5vx1GIgtKmweAymjEfk=
 github.com/DATA-DOG/go-sqlmock v1.3.3/go.mod h1:f/Ixk793poVmq4qj/V1dPUg2JEAKC73Q5eFN3EC/SaM=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
 github.com/StackExchange/wmi v0.0.0-20180116203802-5d049714c4a6 h1:fLjPD/aNc3UIOA6tDi6QXUemppXK3P9BI7mr2hd6gx8=
