@@ -182,7 +182,8 @@ func getCollateralForStorage() {
 
 func getStorageAt() {
 	fmt.Println("\n- start get storage at")
-	client.GetStorageAt(config.ERC20Address, "0x8549225e0f8e0f4a2ea0d9c0e562e986994ded65da69d91aa3768ac6da0a1635", nil)
+	pos := hexutil.MustDecodeBig("0x8549225e0f8e0f4a2ea0d9c0e562e986994ded65da69d91aa3768ac6da0a1635")
+	client.GetStorageAt(config.ERC20Address, (*hexutil.Big)(pos), nil)
 	// printResult("GetStorageAt", []interface{}{config.ERC20Address, "0x8549225e0f8e0f4a2ea0d9c0e562e986994ded65da69d91aa3768ac6da0a1635", nil}, result, err)
 }
 
@@ -444,7 +445,7 @@ func traceFilter() {
 	fmt.Println("\n- start trace filter")
 	client.FilterTraces(types.TraceFilter{
 		FromEpoch:   types.NewEpochNumberUint64(1),
-		ActionTypes: []string{"call", "create"},
+		ActionTypes: []types.TraceType{types.TRACE_CALL, types.TRACE_CREATE},
 	})
 }
 
