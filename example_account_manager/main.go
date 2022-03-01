@@ -5,11 +5,12 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path"
+	"time"
 
 	sdk "github.com/Conflux-Chain/go-conflux-sdk"
 	"github.com/Conflux-Chain/go-conflux-sdk/types"
 	"github.com/Conflux-Chain/go-conflux-sdk/types/cfxaddress"
-	address "github.com/Conflux-Chain/go-conflux-sdk/types/cfxaddress"
 )
 
 var am *sdk.AccountManager
@@ -20,14 +21,13 @@ func init() {
 }
 
 func main() {
-	listAccount()
 	creatAccount()
 	importAccount()
-	hasChecksumChecked()
-	updateAccount()
-	deleteAccount()
+	listAccount()
 	signTx()
 	decodeRawTx()
+	updateAccount()
+	deleteAccount()
 }
 
 func initAccountManager() *sdk.AccountManager {
@@ -53,16 +53,14 @@ func creatAccount() {
 func importAccount() {
 	am := initAccountManager()
 	dir, _ := os.Getwd()
-	keydir := dir + "/keystore"
-	files, err := ioutil.ReadDir(keydir)
-	if err != nil {
+
+	filePath := path.Join(dir, "keystore", fmt.Sprint(time.Now().Unix()))
+	content := `{"address":"16fd16cb6dbcba8ad8e91221e57f3be9160282a9","crypto":{"cipher":"aes-128-ctr","ciphertext":"2deb8e03403638b6b13edfc6cc0e925821f7e576202cfb9cd984f2d85a9c05d7","cipherparams":{"iv":"05db211d3302f5c64105bffbb8d66f61"},"kdf":"scrypt","kdfparams":{"dklen":32,"n":262144,"p":1,"r":8,"salt":"df7f2bbab8e980dfe15a82e1cfec567b0f2f240baa002b7e78ca7f34a7703c68"},"mac":"9e8a705491a52052473a53de5286c87ed27fda0f6ec2813c29875c4d0f7b4814"},"id":"3df031eb-960f-4e32-9bea-fdb8289d457a","version":3}`
+	if err := ioutil.WriteFile(filePath, []byte(content), 0777); err != nil {
 		panic(err)
 	}
-	if len(files) == 0 {
-		panic("no files in directory:" + dir)
-	}
 
-	addr, err := am.Import(keydir+"/"+files[0].Name(), "hello", "hello")
+	addr, err := am.Import(filePath, "hello", "hello")
 	if err != nil {
 		fmt.Println("import account error:", err)
 		return
@@ -71,7 +69,7 @@ func importAccount() {
 }
 
 func updateAccount() {
-	address := cfxaddress.MustNewFromHex("0x14b899ed1cd49da2c11093606465baa102662ab5", 1)
+	address := cfxaddress.MustNewFromHex("0x16fd16cb6dbcba8ad8e91221e57f3be9160282a9", 1)
 	err := am.Update(address, "hello", "hello world")
 	if err != nil {
 		fmt.Printf("update address error: %v \n\n", err)
@@ -81,7 +79,7 @@ func updateAccount() {
 }
 
 func deleteAccount() {
-	address := cfxaddress.MustNewFromHex("0x14b899ed1cd49da2c11093606465baa102662ab5", 1)
+	address := cfxaddress.MustNewFromHex("0x16fd16cb6dbcba8ad8e91221e57f3be9160282a9", 1)
 	err := am.Delete(address, "hello world")
 	if err != nil {
 		fmt.Printf("delete address error: %v \n\n", err)
@@ -93,7 +91,7 @@ func deleteAccount() {
 func signTx() []byte {
 	am := initAccountManager()
 
-	from := cfxaddress.MustNewFromHex("0x1ceb7b1c5252ae3eaaf19d3a785cfbea48cc37f7", 1)
+	from := cfxaddress.MustNewFromHex("0x16fd16cb6dbcba8ad8e91221e57f3be9160282a9", 1)
 	to := cfxaddress.MustNewFromHex("0x10f4bcf113e0b896d9b34294fd3da86b4adf0302", 1)
 	unSignedTx := types.UnsignedTransaction{
 		UnsignedTransactionBase: types.UnsignedTransactionBase{
@@ -126,16 +124,4 @@ func decodeRawTx() {
 		return
 	}
 	fmt.Printf("decoded rawTx %x result: %+v\n\n", rawTx, tx)
-}
-
-func hasChecksumChecked() {
-	_, err := am.Export(address.MustNewFromHex("0x1ceb7b1c5252ae3eaaf19d3a785cfbea48cc37f7", 1), "hello")
-	if err != nil {
-		panic(err)
-	}
-
-	_, err = am.Export(address.MustNewFromHex("0x1Ceb7B1c5252aE3EAaf19d3a785CfBEA48cc37f7", 1), "hello")
-	if err != nil {
-		panic(err)
-	}
 }
