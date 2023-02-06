@@ -23,6 +23,7 @@ func init() {
 func main() {
 	creatAccount()
 	importAccount()
+	exportPrivateKey()
 	listAccount()
 	signTx()
 	decodeRawTx()
@@ -40,14 +41,15 @@ func listAccount() {
 	fmt.Printf("account list: %+v\n\n", am.List())
 }
 
-func creatAccount() {
+func creatAccount() *cfxaddress.Address {
 	am := initAccountManager()
 	addr, err := am.Create("hello")
 	if err != nil {
 		fmt.Println("create account error", err)
-		return
+		return nil
 	}
 	fmt.Println("creat account:", addr)
+	return &addr
 }
 
 func importAccount() {
@@ -66,6 +68,16 @@ func importAccount() {
 		return
 	}
 	fmt.Println("import account done:", addr)
+}
+
+func exportPrivateKey() {
+	addr := creatAccount()
+	privateKey, err := am.Export(*addr, "hello")
+	if err != nil {
+		fmt.Println("export privateKey error", err)
+		return
+	}
+	fmt.Printf("exported private key of addr %v : %v", addr, privateKey)
 }
 
 func updateAccount() {
