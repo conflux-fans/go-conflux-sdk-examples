@@ -75,6 +75,7 @@ func initClient() {
 	client, err = sdk.NewClient(config.NodeURL, sdk.ClientOption{
 		KeystorePath:   keyStorePath,
 		RequestTimeout: time.Second * 10,
+		Logger:         os.Stdout,
 	})
 	if err != nil {
 		utils.PanicIfErr(err)

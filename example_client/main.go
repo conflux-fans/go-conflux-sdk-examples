@@ -6,8 +6,8 @@ import (
 	"time"
 
 	sdk "github.com/Conflux-Chain/go-conflux-sdk"
-	"github.com/Conflux-Chain/go-conflux-sdk/middleware"
-	"github.com/Conflux-Chain/go-conflux-sdk/rpc"
+	"github.com/openweb3/go-rpc-provider"
+
 	"github.com/Conflux-Chain/go-conflux-sdk/types"
 	"github.com/Conflux-Chain/go-conflux-sdk/utils"
 	"github.com/conflux-fans/go-conflux-sdk-examples/context"
@@ -44,11 +44,11 @@ func init() {
 }
 
 func main() {
-	config.GetClient().UseCallRpcMiddleware(middleware.CallRpcConsoleMiddleware)
-	config.GetClient().UseBatchCallRpcMiddleware(middleware.BatchCallRpcConsoleMiddleware)
+	// config.GetClient().UseCallRpcMiddleware(middleware.CallRpcConsoleMiddleware)
+	// config.GetClient().UseBatchCallRpcMiddleware(middleware.BatchCallRpcConsoleMiddleware)
 
-	config.GetRetryClient().UseCallRpcMiddleware(middleware.CallRpcConsoleMiddleware)
-	config.GetRetryClient().UseBatchCallRpcMiddleware(middleware.BatchCallRpcConsoleMiddleware)
+	// config.GetRetryClient().UseCallRpcMiddleware(middleware.CallRpcConsoleMiddleware)
+	// config.GetRetryClient().UseBatchCallRpcMiddleware(middleware.BatchCallRpcConsoleMiddleware)
 
 	fmt.Printf("\n=======start excute client methods without retry=========\n")
 	run(config.GetClient())
