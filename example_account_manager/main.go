@@ -23,6 +23,7 @@ func init() {
 func main() {
 	creatAccount()
 	importAccount()
+	exportPrivateKey()
 	listAccount()
 	signTx()
 	decodeRawTx()
@@ -37,20 +38,23 @@ func initAccountManager() *sdk.AccountManager {
 }
 
 func listAccount() {
+	fmt.Println("\n===Demo: list account ===")
 	fmt.Printf("account list: %+v\n\n", am.List())
 }
 
 func creatAccount() {
+	fmt.Println("\n===Demo: create account ===")
 	am := initAccountManager()
 	addr, err := am.Create("hello")
 	if err != nil {
 		fmt.Println("create account error", err)
 		return
 	}
-	fmt.Println("creat account:", addr)
+	fmt.Printf("create account: %v\n", addr)
 }
 
 func importAccount() {
+	fmt.Println("\n===Demo: import account ===")
 	am := initAccountManager()
 	dir, _ := os.Getwd()
 
@@ -68,7 +72,24 @@ func importAccount() {
 	fmt.Println("import account done:", addr)
 }
 
+func exportPrivateKey() {
+	fmt.Println("\n===Demo: export private key ===")
+	am := initAccountManager()
+	addr, err := am.Create("hello")
+	if err != nil {
+		fmt.Println("create account error", err)
+		return
+	}
+	privateKey, err := am.Export(addr, "hello")
+	if err != nil {
+		fmt.Println("export privateKey error", err)
+		return
+	}
+	fmt.Printf("exported private key of addr %v : %v\n", addr, privateKey)
+}
+
 func updateAccount() {
+	fmt.Println("\n===Demo: update account ===")
 	address := cfxaddress.MustNewFromHex("0x16fd16cb6dbcba8ad8e91221e57f3be9160282a9", 1)
 	err := am.Update(address, "hello", "hello world")
 	if err != nil {
@@ -79,6 +100,7 @@ func updateAccount() {
 }
 
 func deleteAccount() {
+	fmt.Println("\n===Demo: delete account ===")
 	address := cfxaddress.MustNewFromHex("0x16fd16cb6dbcba8ad8e91221e57f3be9160282a9", 1)
 	err := am.Delete(address, "hello world")
 	if err != nil {
@@ -89,6 +111,7 @@ func deleteAccount() {
 }
 
 func signTx() []byte {
+	fmt.Println("\n===Demo: sign tx ===")
 	am := initAccountManager()
 
 	from := cfxaddress.MustNewFromHex("0x16fd16cb6dbcba8ad8e91221e57f3be9160282a9", 1)
@@ -116,6 +139,7 @@ func signTx() []byte {
 }
 
 func decodeRawTx() {
+	fmt.Println("\n===Demo: decode tx ===")
 	rawTx, _ := hex.DecodeString("f867e3018405f5e1008252089410f4bcf113e0b896d9b34294fd3da86b4adf0302648001018080a072aa2777c4b8cee3829ea3fb9658276e40cc4234eb05f176459042e48f69428da07a9bbee20b9a219907c91b562b64ee2e9456d2f280c31ce98736d0feb5e47372")
 	tx := new(types.SignedTransaction)
 	err := tx.Decode(rawTx, 1)
